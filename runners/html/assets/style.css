@@ -1,0 +1,138 @@
+html {
+	background: #f2f2f2;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+}
+
+#runnerframe {
+	display: none;
+}
+
+#wrapper {
+	width: 700px;
+	margin: auto;
+	padding: 20px 10px 10px;
+}
+
+.container {
+	overflow: hidden;
+	height: 1%;
+}
+
+#runtests {
+	float: right;
+	padding-top: 10px;
+}
+
+#results {
+	display: none;
+	float: right;
+	padding-top: 10px;
+}
+
+h1 {
+	margin-top: 0;
+	width: 79px;
+	height: 32px;
+	background: url('logo.png');
+}
+
+h1 strong {
+	display: none;
+}
+
+ul.suites {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+ul.suites li {
+	margin-bottom: 5px;
+}
+
+.suite {
+	background: #ffffff;
+}
+
+.suite.done {
+	cursor: pointer;
+}
+
+.suites p {
+	margin: 0;
+}
+
+.suite .marks {
+	font-size: 12px;
+	font-weight: bold;
+	float: left;
+	width: 20px;
+	text-align: center;
+	padding: 5px;
+	color: #fff;
+	margin-right: 5px;
+}
+
+.suite .marks.passed {
+	background: #55ba1b;
+}
+
+.suite .marks.failed {
+	background: #c31c3a;
+}
+
+.suite .name {
+	font-size: 12px;
+	padding: 5px;
+}
+
+.suites span {
+	float: right;
+}
+
+.tests {
+	overflow: hidden;
+}
+
+.show {
+	height: auto;
+	opacity: 100;
+}
+
+.hidden {
+	height: 0;
+	opacity: 0;
+}
+
+.tests ul {
+	list-style: none;
+	background: #ffffff;
+	padding: 5px;
+	margin: 0;
+	margin-left: 30px;
+}
+
+.tests li {
+	margin-bottom: 10px;
+}
+
+.tests p {
+	margin-bottom: 3px;
+}
+
+.tests p.expect {
+	font-size: 11px;
+	padding-left: 20px;
+}
+
+.tests p.expect strong {
+	color: #c31c3a;
+	font-weight: normal;
+	font-family: "Droid Sans Mono", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", Monaco, "Lucida Console", Monospace;
+}
