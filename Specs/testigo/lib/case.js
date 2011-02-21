@@ -26,8 +26,8 @@ var countExpect = function(fn){
 	return count;
 };
 
-var Case = function(desc, test, context, callback){
-	if (!checkArg('expect', test))
+var Case = function(desc, test, context, callback, argCheck){
+	if (argCheck && !checkArg('expect', test))
 		throw new SyntaxError('Case function does not explicitly define an `expect` argument.');
 
 	this.desc = desc;

@@ -14,6 +14,7 @@ provides: [Testigo]
 var Suite = require('./lib/suite').Suite;
 
 var Testigo = function(callbacks){
+	this.$argCheck = true;
 	this.$suites = [];
 	this.$results = {};
 
@@ -45,6 +46,11 @@ var Testigo = function(callbacks){
 		afterTest: callbacks.afterTest,
 		suiteError: callbacks.suiteError
 	});
+};
+
+Testigo.prototype.noArgCheck = function(f){
+	this.$argCheck = !f;
+	return this;
 };
 
 Testigo.prototype.setCallback = function(name, fn){
@@ -101,7 +107,7 @@ Testigo.prototype.describe = function(name, fn){
 		afterEach: function(suite, test, results){
 			self.$callbacks.afterTest.call(null, suite, test, results);
 		}
-	});
+	}, this.$argCheck);
 	this.$suites.push(suite);
 	this.$callbacks.describe.call(null, name);
 };

@@ -15,10 +15,11 @@ var checkArg = require('./utils').checkArg,
 	Case = require('./case').Case,
 	Spy = require('./spy').Spy;
 
-var Suite = function(name, body, callbacks){
-	if (!checkArg('it', body))
+var Suite = function(name, body, callbacks, argCheck){
+	if (argCheck && !checkArg('it', body))
 		throw new SyntaxError('Suite function does not explicitly define an `it` argument.');
 
+	this.$argCheck = argCheck;
 	this.name = name;
 	this.$body = body;
 	this.$tests = [];
@@ -127,7 +128,7 @@ Suite.prototype.$it = function(desc, fn){
 			self.$callbacks.beforeEach.call(null, self.name, desc, count);
 		},
 		after: itCallback.call(this)
-	});
+	}, this.$argCheck);
 	this.$tests.push(test);
 };
 

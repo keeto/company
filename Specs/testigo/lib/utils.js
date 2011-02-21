@@ -29,7 +29,8 @@ exports.instanceOf = function(item, type){
 exports.checkArg = function(arg, fn){
 	if (fn.length === 0) return false;
 	var fnString = (fn.toSource) ? fn.toSource() : fn.toString();
-	return new RegExp('^[\s(]*function[^(]*\\(' + arg + '[,\\)]+').test(fnString);
+	// console.log('[[\\n'+ fnString + '\\n]]');
+	return new RegExp('^[\\s(]*function[^(]*\\(' + arg + '[,\\)]+').test(fnString);
 };
 
 exports.extend = function(a, b){

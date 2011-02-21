@@ -3,6 +3,18 @@
 var suites = null,
 	tests = {};
 
+window.runAgain = function(){
+	$(document.html).setStyle('background-color', null);
+	suites.empty();
+	var frame = $('runnerframe');
+	frame.contentWindow.location.reload();
+	frame.onload = function(){
+		setTimeout(function(){
+			frame.contentWindow.runTests();
+		}, 1000);
+	};
+};
+
 window.addSuite = function(desc){
 	var test = tests[desc] = {};
 	var suite = test.main = new Element('li', {
@@ -22,7 +34,7 @@ window.addSuite = function(desc){
 	var details = test.details = new Element('li', {
 		'class': 'tests',
 		'styles': {'display': 'none'}
-	})
+	});
 	test.tests = new Element('ul').inject(details);
 	details.inject(suites);
 };
@@ -33,13 +45,13 @@ window.afterSuite = function(suite, success, results){
 	suite = suite.main;
 	suite.addClass('done');
 	suite.getElement('p.marks').addClass(success ? 'passed' : 'failed').set('text', success ? 'P' : 'F');
-	suite.getElement('span').set('text', [results.tests.passes, results.tests.total].join('/'))
+	suite.getElement('span').set('text', [results.tests.passes, results.tests.total].join('/'));
 };
 
 window.suiteError = function(suite, count, error){
 	suite = tests[suite];
 	if (!suite) return null;
-	suite.main.getElement('p.marks').addClass('failed').set('text', 'E');
+	suite.main.addClass('done').getElement('p.marks').addClass('failed').set('text', 'E');
 	suite.tests.empty();
 	new Element('li', {
 		'text': 'Cannot run tests because of errors. [' + error.toString() + ']'
@@ -77,7 +89,7 @@ window.addTest = function(suite, test, results){
 		}
 		suite.details.setStyle('display', 'block');
 	}
-	test.inject(suite.tests)
+	test.inject(suite.tests);
 };
 
 window.after = function(success, results){
@@ -89,8 +101,7 @@ window.after = function(success, results){
 
 window.addEvent('domready', function(){
 	suites = $('suitecontainer');
-	var frame = $('runnerframe');
-	document.body.addEvents({
+	$(document.body).addEvents({
 		'click:relay(li.suite)': function(){
 			if (!this.hasClass('done')) return null;
 			var test = this.getNext('li.tests');
@@ -101,7 +112,10 @@ window.addEvent('domready', function(){
 		e.preventDefault();
 		$('results').setStyle('display', 'block');
 		this.setStyle('display', 'none');
-		frame.contentWindow.runTests();
+		$('runnerframe').contentWindow.runTests();
+	});
+	$('runagain').addEvent('click', function(e){
+		window.runAgain();
 	});
 });
 
