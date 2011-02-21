@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+	<title>Company Specs</title>
+	<link rel="stylesheet" href="testigo/runners/html/assets/style.css" />
+	<style type="text/css">
+		h1 {
+			background-image: none;
+			font-size: 14px;
+			padding-top: 10px;
+			width: auto;
+		}
+
+		h1 strong {
+			display: inline;
+		}
+	</style>
+	<script type="text/javascript" src="testigo/runners/html/assets/mootools.js"></script>
+	<script type="text/javascript" src="testigo/runners/html/assets/runner.js"></script>
+</head>
+<body>
+	<div id="wrapper">
+		<div id="runtests">
+			<a href="#">Run Tests</a>
+		</div>
+		<div id="results">
+			<strong>Passed:</strong> <span id="passed">0</span> / 
+			<strong>Failed:</strong> <span id="failed">0</span> / 
+			<strong>Total:</strong> <span id="total">0</span> 
+			(<a id="runagain" href="#">Run Again</a>)
+		</div>
+		<h1>
+			<strong>Company Specs</strong>
+		</h1>
+		<ul id="suitecontainer" class="suites">
+		</ul>
+	</div>
+	<iframe id="runnerframe" src="suites/tests.html"></iframe>
+</body>
+</html>

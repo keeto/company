@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+	<script type="text/javascript" src="../testigo/runners/html/assets/require.js"></script>
+	<script type="text/javascript" src="../mootools/mootools-core-1.3.js"></script>
+	<script type="text/javascript" src="../../Source/company.js"></script>
+	<script type="text/javascript">
+		require.paths.unshift('/Source/');
+
+		var Testigo = require('../testigo/testigo').Testigo,
+			Tests = new Testigo();
+
+		if (Browser.opera) Tests.noArgCheck(true);
+		Tests.setCallbacks({
+			describe: function(suite){
+				window.top.addSuite(suite);
+			},
+			after: function(success, results){
+				window.top.after(success, results);
+			},
+			suiteError: function(suite, count, error){
+				window.top.suiteError(suite, count, error);
+			},
+			afterSuite: function(suite, success, results){
+				window.top.afterSuite(suite, success, results);
+			},
+			afterTest: function(suite, test, results){
+				window.top.addTest(suite, test, results);
+			}
+		});
+
+		// Import test
+		require('tests').setup(Tests);
+
+		// Run Hook
+		window.runTests = function(){ Tests.run(); }
+	</script>
+</head>
+
+<body>
+	
+</body>
+</html>
+
