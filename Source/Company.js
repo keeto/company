@@ -53,6 +53,16 @@ var mix = function(){
 	return this;
 };
 
+var unwrapClass = function(obj){
+	for (var i in obj){
+		var item = obj[i];
+		if (item instanceof Function && item.$origin){
+			obj[i] = item.$origin;
+		}
+	}
+	return obj;
+};
+
 
 // Dispatcher
 
@@ -61,7 +71,7 @@ var callback = function(){
 	current.apply(current.$ownerObj, callback.args);
 };
 
-var Dispatcher = Object.append(new Events(), {
+var Dispatcher = Object.append(unwrapClass(new Events), {
 
 	$dispatched: {},
 	$finished: {},
@@ -177,7 +187,6 @@ var Dispatcher = Object.append(new Events(), {
 	}
 
 }).setup();
-
 
 // Load and DOMReady
 
