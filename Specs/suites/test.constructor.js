@@ -124,6 +124,7 @@ Tests.describe('Unit Constructor: Event Wrapping', function(it, setup){
 	});
 
 	it('should call the original events', function(expect){
+		expect.perform(1);
 		var obj = this.obj;
 
 		Unit.decorate(obj, true);
