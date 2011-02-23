@@ -80,7 +80,7 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 	setup: function(){
 		var mediator = this.$mediator;
 
-		if (!mediator) return this;
+		if (!mediator || (!mediator.attachEvent && !mediator.addEventListener)) return this;
 
 		if (mediator.attachEvent){
 			$(document.head).appendChild(mediator);
