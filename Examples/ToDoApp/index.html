@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>To Do</title>
+	<link rel="stylesheet" href="styles/main.css" />
+	<script type="text/javascript" src="../assets/mootools-1.3.js"></script>
+	<script type="text/javascript" src="../../Source/Company.js"></script>
+	<script type="text/javascript" src="scripts/main.js"></script>
+</head>
+<body>
+	<div id="wrapper">
+		<!-- List Adder -->
+		<form id="todo-add" action="" method="post">
+			<input id="todo-add-text" type="text" placeholder="Add a todo item.." value="">
+			<input id="todo-add-submit" type="submit" value="Add Item" />
+		</form>
+
+		<!-- ToDo List -->
+		<h2>To Do</h2>
+		<ul id="todo-list">
+			<li data-todo="Buy milk.">
+				<div class="controls">
+					<a href="#" class="done">Done</a>
+					<a href="#" class="remove">Remove</a>
+				</div>
+				<div class="todo-text">Buy milk.</div>
+			</li>
+		</ul>
+
+		<!-- Done List -->
+		<h2>Done</h2>
+		<ul id="todo-done">
+			<li class="no-task">
+				<div class="todo-text">No Tasks</div>
+			</li>
+		</ul>
+
+		<ul id="templates">
+			<li id="template-todo">
+				<div class="controls">
+					<a href="#" class="done">Done</a>
+					<a href="#" class="remove">Remove</a>
+				</div>
+				<div class="todo-text">{{task}}</div>
+			</li>
+			<li id="template-empty" class="no-task">
+				<div class="todo-text">No Tasks</div>
+			</li>
+			<li id="template-done">
+				<div class="controls">
+					<a href="#" class="done">Undo</a>
+					<a href="#" class="remove">Remove</a>
+				</div>
+				<div class="todo-text">{{task}}</div>
+			</li>
+		</ul>
+	</div>
+</body>
+</html>

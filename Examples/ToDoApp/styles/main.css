@@ -1,0 +1,72 @@
+body {
+	background: #E0E0E0;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	margin: 0;
+	padding: 0;
+}
+
+a {
+	color: #000;
+}
+
+h2 {
+	margin-top: 30px;
+	border-bottom: 1px solid #C7E0E8;
+}
+
+#wrapper {
+	background: #fff;
+	margin: 20px auto;
+	padding: 20px 15px;
+	width: 600px;
+}
+
+#todo-add {
+	border: #C7E0E8;
+	background: #ECF5F8;
+	padding: 10px;
+	text-align: center;
+}
+
+#todo-add input {
+	font-size: 14px;
+}
+
+#todo-add-text {
+	width: 80%;
+	margin-right: 10px;
+}
+
+#todo-add-submit {
+	border: 1px solid #333;
+	width: 15%;
+	padding: 3px 5px;
+}
+
+#wrapper ul {
+	list-style: none;
+	margin: 10px auto;
+	padding: 0;
+}
+
+#wrapper li {
+	padding: 10px;
+}
+
+#wrapper li:nth-child(even) {
+	background: #ECF5F8;
+}
+
+#wrapper div.controls {
+	float: right;
+}
+
+#wrapper div.controls a {
+	margin-left: 5px;
+}
+
+#templates {
+	display: none;
+}
+
