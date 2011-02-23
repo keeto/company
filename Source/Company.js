@@ -82,15 +82,7 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 
 		if (!mediator) return this;
 
-		if (mediator.addEventListener){
-			mediator.addEventListener('publishDispatch', callback, false);
-			this.dispatch = function(fn){
-				var e = document.createEvent('UIEvents');
-				e.initEvent('publishDispatch', false, false);
-				callback.current = fn;
-				mediator.dispatchEvent(e);
-			};
-		} else if (mediator.attachEvent){
+		if (mediator.attachEvent){
 			$(document.head).appendChild(mediator);
 			mediator.publishDispatch = 0;
 			mediator.attachEvent('onpropertychange', callback);
@@ -104,6 +96,14 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 				this.detachEvent('onunload', cleanup);
 			};
 			window.attachEvent('onunload', cleanUp);
+		} else if (mediator.addEventListener){
+			mediator.addEventListener('publishDispatch', callback, false);
+			this.dispatch = function(fn){
+				var e = document.createEvent('UIEvents');
+				e.initEvent('publishDispatch', false, false);
+				callback.current = fn;
+				mediator.dispatchEvent(e);
+			};
 		}
 		return this;
 	},
