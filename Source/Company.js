@@ -98,14 +98,11 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 				callback.current = fn;
 				mediator.publishDispatch++;
 			};
+			window.attachEvent('unload', function(){
+				mediator.detachEvent('onpropertychange', callback);
+				mediator.parentNode.removeChild(mediator);
+			});
 		}
-
-		window.addEvent('unload', function(){
-			if (mediator.removeEventListener) mediator.removeEventListener('publishDispatch', callback, false);
-			else if (mediator.detachEvent) mediator.detachEvent('onpropertychange', callback);
-			delete mediator;
-		});
-
 		return this;
 	},
 
