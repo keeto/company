@@ -238,6 +238,10 @@ this.Unit = new Type('Unit', Unit).extend({
 	decorate: function(obj, nowrap){
 		if (!obj.$unitInstance){
 			var unit = obj.$unitInstance = new Unit;
+			unit.extendUnit = function(ext){
+				mix.call(obj, ext);
+				return this;
+			};
 			for (var i in unit) (function(key, value){
 				if (!obj[i] && i !== '$family' && value instanceof Function){
 					obj[i] = function(){
