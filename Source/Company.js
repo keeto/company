@@ -90,7 +90,7 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 				callback.current = fn;
 				mediator.dispatchEvent(e);
 			};
-		} else if (mediator.attachEvent && !mediator.addEventLister){
+		} else if (mediator.attachEvent && !mediator.addEventListener){
 			$(document.head).appendChild(mediator);
 			mediator.publishDispatch = 0;
 			mediator.attachEvent('onpropertychange', callback);
