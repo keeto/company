@@ -101,7 +101,7 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 			var cleanUp = function(){
 				mediator.detachEvent('onpropertychange', callback);
 				mediator.parentNode.removeChild(mediator);
-				this.detachEvent('onunload', cleanup);
+				this.detachEvent('onunload', cleanUp);
 			};
 			window.attachEvent('onunload', cleanUp);
 		}
