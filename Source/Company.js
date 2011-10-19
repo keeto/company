@@ -40,15 +40,25 @@ var mix = function(){
 				Current.$prototyping = true;
 				Object.append(this, new Current);
 				delete Current.$prototyping;
-				break;
+			break;
+
 			case 'unit':
 				for (var i in Current){
 					if (!Current.hasOwnProperty(i)) continue;
-					this[i] = Current[i];
+					var value = Current[i];
+					if (typeof value == 'function' || !value.exec){
+						this[i] = (function(fn){
+							return function(){ return fn.apply(this, arguments); };
+						})();
+					} else {
+						this[i] = value;
+					}
 				}
-				break;
+			break;
+
 			default:
 				Object.append(this, Current);
+			break;
 		}
 	}
 	return this;
