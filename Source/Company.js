@@ -49,7 +49,7 @@ var mix = function(){
 					if (typeof value == 'function' || !value.exec){
 						this[i] = (function(fn){
 							return function(){ return fn.apply(this, arguments); };
-						})();
+						})(value);
 					} else {
 						this[i] = value;
 					}
