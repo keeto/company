@@ -30,6 +30,12 @@ var removeOn = Events.removeOn || function(string){
 	});
 };
 
+var wrap = function(fn){
+	return function(){
+		return fn.apply(this, arguments);
+	};
+};
+
 var mix = function(){
 	var len = arguments.length;
 	while(len--){
@@ -46,13 +52,7 @@ var mix = function(){
 				for (var i in Current){
 					if (!Current.hasOwnProperty(i)) continue;
 					var value = Current[i];
-					if (typeof value == 'function' && !value.exec){
-						this[i] = (function(fn){
-							return function(){ return fn.apply(this, arguments); };
-						})(value);
-					} else {
-						this[i] = value;
-					}
+					this[i] = (typeof value == 'function' && !value.exec) ? wrap(fn) : value;
 				}
 			break;
 
