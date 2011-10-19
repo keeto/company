@@ -46,7 +46,7 @@ var mix = function(){
 				for (var i in Current){
 					if (!Current.hasOwnProperty(i)) continue;
 					var value = Current[i];
-					if (typeof value == 'function' || !value.exec){
+					if (typeof value == 'function' && !value.exec){
 						this[i] = (function(fn){
 							return function(){ return fn.apply(this, arguments); };
 						})(value);
