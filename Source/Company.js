@@ -43,7 +43,8 @@ var mix = function(){
 				break;
 			case 'unit':
 				for (var i in Current){
-					if (Current.hasOwnProperty(i)) this[i] = Current[i];
+					if (!Current.hasOwnProperty(i)) continue;
+					this[i] = Current[i];
 				}
 				break;
 			default:
