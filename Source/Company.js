@@ -134,15 +134,19 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 
 	replay: function(type, fn){
 		if (!this.$dispatched || !this.$dispatched[type]) return false;
+		var _args = callback.args;
 		callback.args = this.$dispatched[type];
 		this.dispatch(fn);
+		callback.args = _args;
 		return true;
 	},
 
 	redispatch: function(type, fn){
 		if (!this.$finished || !this.$finished[type]) return false;
+		var _args = callback.args;
 		callback.args = this.$finished[type];
 		this.dispatch(fn);
+		callback.args = _args;
 		return true;
 	},
 
@@ -151,9 +155,11 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 		type = removeOn(type);
 		args = Array.from(args);
 		if (finish) this.$finished[type] = args;
+		var _args = callback.args;
 		this.$dispatched[type] = callback.args = args;
 		if (!this.$events || !this.$events[type]) return this;
 		this.$events[type].each(this.dispatch);
+		callback.args = _args;
 		return this;
 	},
 
