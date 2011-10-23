@@ -95,9 +95,10 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 
 		if (mediator.addEventListener){
 			mediator.addEventListener('publishDispatch', callback, false);
-			this.dispatch = function(fn){
+			this.dispatch = function(fn, args){
 				var e = document.createEvent('UIEvents');
 				e.initEvent('publishDispatch', false, false);
+				callback.args = args;
 				callback.current = fn;
 				mediator.dispatchEvent(e);
 			};
@@ -105,7 +106,8 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 			$(document.head).appendChild(mediator);
 			mediator.publishDispatch = 0;
 			mediator.attachEvent('onpropertychange', callback);
-			this.dispatch = function(fn){
+			this.dispatch = function(fn, args){
+				callback.args = args;
 				callback.current = fn;
 				mediator.publishDispatch++;
 			};
@@ -127,26 +129,21 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 		return this.$dispatched[key] || [];
 	},
 
-	dispatch: function(fn){
+	dispatch: function(fn, args){
+		callback.args = args;
 		callback.current = fn;
 		callback.call(null);
 	},
 
 	replay: function(type, fn){
 		if (!this.$dispatched || !this.$dispatched[type]) return false;
-		var _args = callback.args;
-		callback.args = this.$dispatched[type];
-		this.dispatch(fn);
-		callback.args = _args;
+		this.dispatch(fn, this.$dispatched[type]);
 		return true;
 	},
 
 	redispatch: function(type, fn){
 		if (!this.$finished || !this.$finished[type]) return false;
-		var _args = callback.args;
-		callback.args = this.$finished[type];
-		this.dispatch(fn);
-		callback.args = _args;
+		this.dispatch(fn, this.$finished[type]);
 		return true;
 	},
 
@@ -155,11 +152,11 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 		type = removeOn(type);
 		args = Array.from(args);
 		if (finish) this.$finished[type] = args;
-		var _args = callback.args;
-		this.$dispatched[type] = callback.args = args;
+		this.$dispatched[type] = args;
 		if (!this.$events || !this.$events[type]) return this;
-		this.$events[type].each(this.dispatch);
-		callback.args = _args;
+		this.$events[type].each(function(i){
+			this.dispatch(i, args);
+		}, this);
 		return this;
 	},
 
