@@ -63,16 +63,6 @@ var mix = function(){
 	return this;
 };
 
-var unwrapClass = function(obj){
-	for (var i in obj){
-		var item = obj[i];
-		if (item instanceof Function && item.$origin){
-			obj[i] = item.$origin;
-		}
-	}
-	return obj;
-};
-
 
 // Dispatcher
 
@@ -81,7 +71,15 @@ var callback = function(){
 	current.apply(current.$ownerObj, callback.args);
 };
 
-var Dispatcher = Object.append(unwrapClass(new Events), {
+var Dispatcher = new Events;
+
+unwrapClassMethods: for (var prop in Dispatcher){
+	var item = Dispatcher[prop];
+	if (typeof item != 'function' || item.exec || !item.$origin) continue;
+	Dispatcher[prop] = item.$origin;
+}
+
+Object.append(Dispatcher, {
 
 	$dispatched: {},
 	$finished: {},
