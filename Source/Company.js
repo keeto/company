@@ -392,10 +392,7 @@ this.Unit = new Type('Unit', Unit).extend({
 		if (typeof key == 'object'){
 			for (var i in key) this.subscribe(i, key[i], fn);
 		} else {
-			if (key.charAt(0) == '!'){
-				replay = true;
-				key = key.substring(1);
-			}
+			if (key.charAt(0) == '!') replay = !!(key = key.substring(1));
 			fn.$ownerObj = this;
 			if (!Dispatcher.redispatch(key, fn)){
 				Events.prototype.addEvent.call({$events: this.$unitHandlers}, key, fn);
@@ -419,7 +416,7 @@ this.Unit = new Type('Unit', Unit).extend({
 	},
 
 	publish: function(type, args, finish){
-		if (type.charAt(0) == '!') type = type.substring(1);
+		if (type.charAt(0) == '!') finish = (type = type.substring(1));
 		else if (this.$unitPrefix) type = this.$unitPrefix + '.' + type;
 		if (this.$unitAttached) Dispatcher.fireEvent.call(Dispatcher, type, args, finish);
 		return this;
