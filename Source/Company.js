@@ -133,14 +133,18 @@ Object.append(Dispatcher, {
 	},
 
 	replay: function(type, fn){
-		if (!this.$dispatched || !this.$dispatched[type]) return false;
-		this.dispatch(fn, this.$dispatched[type]);
+		var dispatched = this.$dispatched,
+			args = null;
+		if (!dispatched || !(args = dispatched[type])) return false;
+		this.dispatch(fn, args);
 		return true;
 	},
 
 	redispatch: function(type, fn){
-		if (!this.$finished || !this.$finished[type]) return false;
-		this.dispatch(fn, this.$finished[type]);
+		var finished = this.$finished,
+			args = null;
+		if (!finished || !(args = finished[type])) return false;
+		this.dispatch(fn, args);
 		return true;
 	},
 
