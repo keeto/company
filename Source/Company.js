@@ -145,15 +145,19 @@ Object.append(Dispatcher, {
 	},
 
 	fireEvent: function(type, args, finish){
-		var self = this;
+		var self = this,
+			dispatched = this.$dispatched,
+			finished = this.$finished,
+			events = this.$events,
+			handlers = null;
 		type = type.replace(removeOnRegexp, removeOnFn);
 		args = Array.from(args);
-		if (finish) this.$finished[type] = args;
-		this.$dispatched[type] = args;
-		if (!this.$events || !this.$events[type]) return this;
-		this.$events[type].each(function(i){
-			this.dispatch(i, args);
-		}, this);
+		dispatched[type] = args;
+		if (finish) finished[type] = args;
+		if (!events || !(handlers = events[type])) return this;
+		for (var i = 0, l = handlers.length; i < l; i++){
+			this.dispatch(handlers[i], args);
+		}
 		return this;
 	},
 
