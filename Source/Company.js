@@ -227,12 +227,20 @@ function Unit(desc){
 	return this;
 }
 
-var wrapEventFn = function(origin, rep){
+var decorateFireEvent = function(origin, rep){
 	var fn = function(){
 		rep.apply(this, arguments);
 		return origin.apply(this, arguments);
 	};
 	fn.$unwrapped = origin;
+	return fn;
+};
+
+var decorateFn = function(value, unit){
+	var fn = function(){
+		return value.apply(unit, arguments);
+	};
+	fn.$origin = value;
 	return fn;
 };
 
@@ -247,49 +255,46 @@ this.Unit = new Type('Unit', Unit).extend({
 	},
 
 	decorate: function(obj, nowrap){
-		if (!obj.$unitInstance){
-			var unit = obj.$unitInstance = new Unit;
-			unit.extendUnit = function(ext){
-				mix.call(obj, ext);
-				return this;
-			};
-			for (var i in unit) (function(key, value){
-				if (!obj[i] && i !== '$family' && value instanceof Function){
-					obj[i] = function(){
-						return value.apply(unit, arguments);
-					};
-					obj[i].$origin = value;
-				}
-			})(i, unit[i]);
-			obj.setupUnit();
-			if (!nowrap) this.wrapEvents(obj);
+		if (obj.$unitInstance) return obj;
+		var unit = obj.$unitInstance = new Unit;
+		unit.extendUnit = function(ext){
+			mix.call(obj, ext);
+			return this;
+		};
+		for (var i in unit){
+			var value = unit[i];
+			if (obj[i] || i == '$family' || (typeof value !== 'function' || value.exec)) continue;
+			obj[i] = decorateFn(value, unit);
 		}
-		return obj;
+		obj.setupUnit();
+		return (!nowrap) ? this.wrapEvents(obj) : obj;
 	},
 
 	undecorate: function(obj){
 		var unit = obj.$unitInstance;
-		if (unit){
-			for (var i in unit) (function(key, value){
-				if (obj[key] && obj[key].$origin == value){
-					delete obj[key];
-				}
-			})(i, unit[i]);
-			this.unwrapEvents(obj);
-			delete obj.$unitInstance;
+		if (!unit) return obj;
+		for (var key in unit){
+			var value = obj[key];
+			if (!value && value.$origin == value) continue;
+			delete obj[key];
 		}
+		this.unwrapEvents(obj);
+		delete obj.$unitInstance;
 		return obj;
 	},
 
 	wrapEvents: function(unit){
-		if (unit.fireEvent && !unit.fireEvent.$unwrapped) unit.fireEvent = wrapEventFn(unit.fireEvent, function(type, args){
+		var fireEvent = unit.fireEvent;
+		if (!fireEvent || fireEvent.$unwrapped) return unit;
+		unit.fireEvent = decorateFireEvent(fireEvent, function(type, args){
 			unit.publish(type, args);
 		});
 		return unit;
 	},
 
 	unwrapEvents: function(unit){
-		if (unit.fireEvent && unit.fireEvent.$unwrapped) unit.fireEvent = unit.fireEvent.$unwrapped;
+		var fireEvent = unit.fireEvent;
+		if (fireEvent && fireEvent.$unwrapped) unit.fireEvent = fireEvent.$unwrapped;
 		return unit;
 	}
 
