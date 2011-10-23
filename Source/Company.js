@@ -160,7 +160,10 @@ Object.append(Dispatcher, {
 	removeEvents: function(events){
 		var type;
 		if (typeOf(events) == 'object'){
-			for (type in events) this.removeEvent(type, events[type]);
+			for (type in events){
+				if (!events.hasOwnProperty(type)) continue;
+				this.removeEvent(type, events[type]);
+			}
 			return this;
 		}
 		if (events) events = events.replace(removeOnRegexp, removeOnFn);
@@ -174,25 +177,34 @@ Object.append(Dispatcher, {
 		return this;
 	},
 
+	removeFinished: function(){
+		var finished = this.$finished;
+		for (var i in finished){
+			if (!finished.hasOwnProperty(i) 
+				|| i == 'window.domready'
+				|| i == 'window.load') continue;
+			delete finished[i];
+		}
+		return this;
+	},
+
+	removeDispatched: function(){
+		var dispatched = this.$dispatched;
+		for (var i in dispatched){
+			if (!dispatched.hasOwnProperty(i) 
+				|| i == 'window.domready'
+				|| i == 'window.load') continue;
+			delete dispatched[i];
+		}
+		return this;
+	},
+
 	flush: function(){
-		var i;
 		this.removeEvents();
 		delete Dispatcher.$events;
 		Dispatcher.$events = {};
-		var finished = this.$finished;
-		for (i in finished){
-			if (finished.hasOwnProperty(i) && !({
-				'window.domready': 1,
-				'window.load': 1
-			})[i]) delete finished[i];
-		}
-		var dispatched = this.$dispatched;
-		for (i in dispatched){
-			if (dispatched.hasOwnProperty(i) && !({
-				'window.domready': 1,
-				'window.load': 1
-			})[i]) delete dispatched[i];
-		}
+		this.removeFinished();
+		this.removeDispatched();
 		return this;
 	}
 
@@ -429,8 +441,18 @@ Unit.Dispatcher = {
 		return Object.clone(Dispatcher.$finished);
 	},
 
+	removeFinished: function(){
+		Dispatcher.removeFinished();
+		return this;
+	},
+
 	getDispatched: function(key){
 		return key ? (Dispatcher.$dispatched[key] || []).clone() : Object.clone(Dispatcher.$dispatched);
+	},
+
+	removeDispatched: function(){
+		Dispatcher.removeDispatched();
+		return this;
 	},
 
 	getSubscribers: function(key){
