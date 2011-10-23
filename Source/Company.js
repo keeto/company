@@ -24,11 +24,10 @@ provides: [Unit]
 
 // Utility Functions
 
-var removeOn = Events.removeOn || function(string){
-	return string.replace(/^on([A-Z])/, function(full, first){
-		return first.toLowerCase();
-	});
-};
+var removeOnRegexp = /^on([A-Z])/,
+	removeOnFn = function(_, ch){
+		return ch.toLowerCase();
+	};
 
 var wrap = function(fn){
 	return function(){
@@ -149,7 +148,7 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 
 	fireEvent: function(type, args, finish){
 		var self = this;
-		type = removeOn(type);
+		type = type.replace(removeOnRegexp, removeOnFn);
 		args = Array.from(args);
 		if (finish) this.$finished[type] = args;
 		this.$dispatched[type] = args;
@@ -166,7 +165,7 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 			for (type in events) this.removeEvent(type, events[type]);
 			return this;
 		}
-		if (events) events = removeOn(events);
+		if (events) events = events.replace(removeOnRegexp, removeOnFn);
 		for (type in this.$events){
 			if (events && events != type) continue;
 			var fns = this.$events[type];
