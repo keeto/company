@@ -275,7 +275,7 @@ this.Unit = new Type('Unit', Unit).extend({
 		if (!unit) return obj;
 		for (var key in unit){
 			var value = obj[key];
-			if (!value && value.$origin == value) continue;
+			if (!value || value.$origin == value) continue;
 			delete obj[key];
 		}
 		this.unwrapEvents(obj);
