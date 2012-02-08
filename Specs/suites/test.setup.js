@@ -162,6 +162,19 @@ Tests.describe('Unit Instance: PubSub', function(it, setup){
 		expect(fn.getCallCount()).toBe(2);
 	});
 
+	it('should dispatch subsequent callbacks immediately if published as final via a mark', function(expect){
+		expect.perform(1);
+
+		var unit = new Unit(),
+			fn = this.createSpy();
+
+		unit.publish('!event', null);
+		unit.subscribe('event', function(){ fn(); });
+		unit.subscribe('event', function(){ fn(); });
+
+		expect(fn.getCallCount()).toBe(2);
+	});
+
 	it('should dispatch a callback immediately if replay is on', function(expect){
 		expect.perform(1);
 

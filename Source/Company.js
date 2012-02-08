@@ -4,7 +4,7 @@ name: Company
 
 description: Mediated Component System for MooTools
 
-version: 1.0
+version: 1.1
 
 license: MIT-style
 
@@ -24,10 +24,15 @@ provides: [Unit]
 
 // Utility Functions
 
-var removeOn = Events.removeOn || function(string){
-	return string.replace(/^on([A-Z])/, function(full, first){
-		return first.toLowerCase();
-	});
+var removeOnRegexp = /^on([A-Z])/,
+	removeOnFn = function(_, ch){
+		return ch.toLowerCase();
+	};
+
+var wrap = function(fn){
+	return function(){
+		return fn.apply(this, arguments);
+	};
 };
 
 var mix = function(){
@@ -40,27 +45,22 @@ var mix = function(){
 				Current.$prototyping = true;
 				Object.append(this, new Current);
 				delete Current.$prototyping;
-				break;
+			break;
+
 			case 'unit':
 				for (var i in Current){
-					if (Current.hasOwnProperty(i)) this[i] = Current[i];
+					if (!Current.hasOwnProperty(i)) continue;
+					var value = Current[i];
+					this[i] = (typeof value == 'function' && !value.exec) ? wrap(value) : value;
 				}
-				break;
+			break;
+
 			default:
 				Object.append(this, Current);
+			break;
 		}
 	}
 	return this;
-};
-
-var unwrapClass = function(obj){
-	for (var i in obj){
-		var item = obj[i];
-		if (item instanceof Function && item.$origin){
-			obj[i] = item.$origin;
-		}
-	}
-	return obj;
 };
 
 
@@ -71,7 +71,15 @@ var callback = function(){
 	current.apply(current.$ownerObj, callback.args);
 };
 
-var Dispatcher = Object.append(unwrapClass(new Events), {
+var Dispatcher = new Events;
+
+unwrapClassMethods: for (var prop in Dispatcher){
+	var item = Dispatcher[prop];
+	if (typeof item != 'function' || item.exec || !item.$origin) continue;
+	Dispatcher[prop] = item.$origin;
+}
+
+Object.append(Dispatcher, {
 
 	$dispatched: {},
 	$finished: {},
@@ -84,9 +92,10 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 
 		if (mediator.addEventListener){
 			mediator.addEventListener('publishDispatch', callback, false);
-			this.dispatch = function(fn){
+			this.dispatch = function(fn, args){
 				var e = document.createEvent('UIEvents');
 				e.initEvent('publishDispatch', false, false);
+				callback.args = args;
 				callback.current = fn;
 				mediator.dispatchEvent(e);
 			};
@@ -94,14 +103,15 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 			$(document.head).appendChild(mediator);
 			mediator.publishDispatch = 0;
 			mediator.attachEvent('onpropertychange', callback);
-			this.dispatch = function(fn){
+			this.dispatch = function(fn, args){
+				callback.args = args;
 				callback.current = fn;
 				mediator.publishDispatch++;
 			};
 			var cleanUp = function(){
 				mediator.detachEvent('onpropertychange', callback);
 				mediator.parentNode.removeChild(mediator);
-				this.detachEvent('onunload', cleanup);
+				this.detachEvent('onunload', cleanUp);
 			};
 			window.attachEvent('onunload', cleanUp);
 		}
@@ -116,43 +126,55 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 		return this.$dispatched[key] || [];
 	},
 
-	dispatch: function(fn){
+	dispatch: function(fn, args){
+		callback.args = args;
 		callback.current = fn;
 		callback.call(null);
 	},
 
 	replay: function(type, fn){
-		if (!this.$dispatched || !this.$dispatched[type]) return false;
-		callback.args = this.$dispatched[type];
-		this.dispatch(fn);
+		var dispatched = this.$dispatched,
+			args = null;
+		if (!dispatched || !(args = dispatched[type])) return false;
+		this.dispatch(fn, args);
 		return true;
 	},
 
 	redispatch: function(type, fn){
-		if (!this.$finished || !this.$finished[type]) return false;
-		callback.args = this.$finished[type];
-		this.dispatch(fn);
+		var finished = this.$finished,
+			args = null;
+		if (!finished || !(args = finished[type])) return false;
+		this.dispatch(fn, args);
 		return true;
 	},
 
 	fireEvent: function(type, args, finish){
-		var self = this;
-		type = removeOn(type);
+		var self = this,
+			dispatched = this.$dispatched,
+			finished = this.$finished,
+			events = this.$events,
+			handlers = null;
+		type = type.replace(removeOnRegexp, removeOnFn);
 		args = Array.from(args);
-		if (finish) this.$finished[type] = args;
-		this.$dispatched[type] = callback.args = args;
-		if (!this.$events || !this.$events[type]) return this;
-		this.$events[type].each(this.dispatch);
+		dispatched[type] = args;
+		if (finish) finished[type] = args;
+		if (!events || !(handlers = events[type])) return this;
+		for (var i = 0, l = handlers.length; i < l; i++){
+			this.dispatch(handlers[i], args);
+		}
 		return this;
 	},
 
 	removeEvents: function(events){
 		var type;
 		if (typeOf(events) == 'object'){
-			for (type in events) this.removeEvent(type, events[type]);
+			for (type in events){
+				if (!events.hasOwnProperty(type)) continue;
+				this.removeEvent(type, events[type]);
+			}
 			return this;
 		}
-		if (events) events = removeOn(events);
+		if (events) events = events.replace(removeOnRegexp, removeOnFn);
 		for (type in this.$events){
 			if (events && events != type) continue;
 			var fns = this.$events[type];
@@ -163,25 +185,34 @@ var Dispatcher = Object.append(unwrapClass(new Events), {
 		return this;
 	},
 
+	removeFinished: function(){
+		var finished = this.$finished;
+		for (var i in finished){
+			if (!finished.hasOwnProperty(i) 
+				|| i == 'window.domready'
+				|| i == 'window.load') continue;
+			delete finished[i];
+		}
+		return this;
+	},
+
+	removeDispatched: function(){
+		var dispatched = this.$dispatched;
+		for (var i in dispatched){
+			if (!dispatched.hasOwnProperty(i) 
+				|| i == 'window.domready'
+				|| i == 'window.load') continue;
+			delete dispatched[i];
+		}
+		return this;
+	},
+
 	flush: function(){
-		var i;
 		this.removeEvents();
 		delete Dispatcher.$events;
 		Dispatcher.$events = {};
-		var finished = this.$finished;
-		for (i in finished){
-			if (finished.hasOwnProperty(i) && !({
-				'window.domready': 1,
-				'window.load': 1
-			})[i]) delete finished[i];
-		}
-		var dispatched = this.$dispatched;
-		for (i in dispatched){
-			if (dispatched.hasOwnProperty(i) && !({
-				'window.domready': 1,
-				'window.load': 1
-			})[i]) delete dispatched[i];
-		}
+		this.removeFinished();
+		this.removeDispatched();
 		return this;
 	}
 
@@ -216,12 +247,20 @@ function Unit(desc){
 	return this;
 }
 
-var wrapEventFn = function(origin, rep){
+var decorateFireEvent = function(origin, rep){
 	var fn = function(){
 		rep.apply(this, arguments);
 		return origin.apply(this, arguments);
 	};
 	fn.$unwrapped = origin;
+	return fn;
+};
+
+var decorateFn = function(value, unit){
+	var fn = function(){
+		return value.apply(unit, arguments);
+	};
+	fn.$origin = value;
 	return fn;
 };
 
@@ -236,49 +275,46 @@ this.Unit = new Type('Unit', Unit).extend({
 	},
 
 	decorate: function(obj, nowrap){
-		if (!obj.$unitInstance){
-			var unit = obj.$unitInstance = new Unit;
-			unit.extendUnit = function(ext){
-				mix.call(obj, ext);
-				return this;
-			};
-			for (var i in unit) (function(key, value){
-				if (!obj[i] && i !== '$family' && value instanceof Function){
-					obj[i] = function(){
-						return value.apply(unit, arguments);
-					};
-					obj[i].$origin = value;
-				}
-			})(i, unit[i]);
-			obj.setupUnit();
-			if (!nowrap) this.wrapEvents(obj);
+		if (obj.$unitInstance) return obj;
+		var unit = obj.$unitInstance = new Unit;
+		unit.extendUnit = function(ext){
+			mix.call(obj, ext);
+			return this;
+		};
+		for (var i in unit){
+			var value = unit[i];
+			if (obj[i] || i == '$family' || (typeof value !== 'function' || value.exec)) continue;
+			obj[i] = decorateFn(value, unit);
 		}
-		return obj;
+		obj.setupUnit();
+		return (!nowrap) ? this.wrapEvents(obj) : obj;
 	},
 
 	undecorate: function(obj){
 		var unit = obj.$unitInstance;
-		if (unit){
-			for (var i in unit) (function(key, value){
-				if (obj[key] && obj[key].$origin == value){
-					delete obj[key];
-				}
-			})(i, unit[i]);
-			this.unwrapEvents(obj);
-			delete obj.$unitInstance;
+		if (!unit) return obj;
+		for (var key in unit){
+			var value = obj[key];
+			if (!value || value.$origin == value) continue;
+			delete obj[key];
 		}
+		this.unwrapEvents(obj);
+		delete obj.$unitInstance;
 		return obj;
 	},
 
 	wrapEvents: function(unit){
-		if (unit.fireEvent && !unit.fireEvent.$unwrapped) unit.fireEvent = wrapEventFn(unit.fireEvent, function(type, args){
+		var fireEvent = unit.fireEvent;
+		if (!fireEvent || fireEvent.$unwrapped) return unit;
+		unit.fireEvent = decorateFireEvent(fireEvent, function(type, args){
 			unit.publish(type, args);
 		});
 		return unit;
 	},
 
 	unwrapEvents: function(unit){
-		if (unit.fireEvent && unit.fireEvent.$unwrapped) unit.fireEvent = unit.fireEvent.$unwrapped;
+		var fireEvent = unit.fireEvent;
+		if (fireEvent && fireEvent.$unwrapped) unit.fireEvent = fireEvent.$unwrapped;
 		return unit;
 	}
 
@@ -356,10 +392,7 @@ this.Unit = new Type('Unit', Unit).extend({
 		if (typeof key == 'object'){
 			for (var i in key) this.subscribe(i, key[i], fn);
 		} else {
-			if (key.charAt(0) == '!'){
-				replay = true;
-				key = key.substring(1);
-			}
+			if (key.charAt(0) == '!') replay = !!(key = key.substring(1));
 			fn.$ownerObj = this;
 			if (!Dispatcher.redispatch(key, fn)){
 				Events.prototype.addEvent.call({$events: this.$unitHandlers}, key, fn);
@@ -383,7 +416,7 @@ this.Unit = new Type('Unit', Unit).extend({
 	},
 
 	publish: function(type, args, finish){
-		if (type.charAt(0) == '!') type = type.substring(1);
+		if (type.charAt(0) == '!') finish = (type = type.substring(1));
 		else if (this.$unitPrefix) type = this.$unitPrefix + '.' + type;
 		if (this.$unitAttached) Dispatcher.fireEvent.call(Dispatcher, type, args, finish);
 		return this;
@@ -413,8 +446,18 @@ Unit.Dispatcher = {
 		return Object.clone(Dispatcher.$finished);
 	},
 
+	removeFinished: function(){
+		Dispatcher.removeFinished();
+		return this;
+	},
+
 	getDispatched: function(key){
 		return key ? (Dispatcher.$dispatched[key] || []).clone() : Object.clone(Dispatcher.$dispatched);
+	},
+
+	removeDispatched: function(){
+		Dispatcher.removeDispatched();
+		return this;
 	},
 
 	getSubscribers: function(key){
