@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/keeto/company.png)](http://travis-ci.org/keeto/company)
 Company
 =======
 
