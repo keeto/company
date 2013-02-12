@@ -420,6 +420,11 @@ this.Unit = new Type('Unit', Unit).extend({
 		else if (this.$unitPrefix) type = this.$unitPrefix + '.' + type;
 		if (this.$unitAttached) Dispatcher.fireEvent.call(Dispatcher, type, args, finish);
 		return this;
+	},
+
+	copublish: function(type, args){
+		if (this.$unitAttached) Dispatcher.fireEvent.call(Dispatcher, type, args);
+		return this;
 	}
 
 });
