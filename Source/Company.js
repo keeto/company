@@ -4,7 +4,7 @@ name: Company
 
 description: Mediated Component System for MooTools
 
-version: 1.1
+version: 1.2
 
 license: MIT-style
 
