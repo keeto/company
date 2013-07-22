@@ -160,7 +160,7 @@ Object.append(Dispatcher, {
 		if (finish) finished[type] = args;
 		if (!events || !(handlers = events[type])) return this;
 		for (var i = 0, l = handlers.length; i < l; i++){
-			this.dispatch(handlers[i], args);
+			if (handlers[i]) this.dispatch(handlers[i], args);
 		}
 		return this;
 	},
