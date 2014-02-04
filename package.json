@@ -1,0 +1,31 @@
+{
+  "author": "Mark Obcena",
+  "name": "Company",
+  "description": "Company is an implicitly-mediated component system for MooTools that helps in developing modular, component-based applications.",
+  "version": "1.1.0",
+  "homepage": "http://code.keetology.com/company/",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/keeto/company.git"
+  },
+  "main": "Source/Company.js",
+  "engines": {
+    "node": "*"
+  },
+  "keywords": [
+      "event",
+      "events",
+      "mootools",
+      "observer",
+      "pubsub"
+  ],
+  "bugs": {
+      "url": "https://github.com/keeto/company/issues"
+  },
+  "licenses": [
+      {
+          "type": "MIT",
+          "url": "https://raw.github.com/keeto/slab/master/LICENSE"
+      }
+  ]
+}
