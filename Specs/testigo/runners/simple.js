@@ -13,7 +13,7 @@ provides: [SimpleRunner]
 
 var sys, printer = function(type){
 	switch(type){
-		case 'node': return require('sys').print;
+		case 'node': return require('util').print;
 		case 'helma':
 		case 'ringo':
 		case 'flusspferd':
