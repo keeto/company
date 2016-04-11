@@ -63,6 +63,8 @@ var mix = function(){
 	return this;
 };
 
+// Compatibility
+Array.convert = Array.convert || Array.from;
 
 // Dispatcher
 
@@ -155,7 +157,7 @@ Object.append(Dispatcher, {
 			events = this.$events,
 			handlers = null;
 		type = type.replace(removeOnRegexp, removeOnFn);
-		args = Array.from(args);
+		args = Array.convert(args);
 		dispatched[type] = args;
 		if (finish) finished[type] = args;
 		if (!events || !(handlers = events[type])) return this;
@@ -324,7 +326,7 @@ this.Unit = new Type('Unit', Unit).extend({
 	setupUnit: function(){
 		var self = this;
 		if (this.Uses){
-			Array.from(this.Uses).each(this.extendUnit.bind(this));
+			Array.convert(this.Uses).each(this.extendUnit.bind(this));
 			delete this.Uses;
 		}
 		if (this.Prefix){
